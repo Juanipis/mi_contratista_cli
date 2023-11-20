@@ -21,7 +21,15 @@ pipenv install
 ```
 
 ## Ejecución
+Primero es necesario un .env con las siguientes variables de entorno (se usa una base de datos postgresql):
 
+```bash
+db_host=
+db_port=
+db_user=
+db_password=
+db_name=
+```
 Para ejecutar la aplicación, primero activa el entorno virtual:
 
 ```bash
@@ -34,19 +42,8 @@ Luego, inicia la aplicación con:
 python ./app/main.py
 ```
 
-## Uso
-
-Una vez que la aplicación esté en ejecución, se presentarán varias opciones:
-
-1. **Iniciar una Nueva Tarea**: Inicia el seguimiento de una nueva tarea.
-2. **Generar un Reporte**: Genera un informe basado en un rango de fechas.
-3. **Insertar Tarea Manualmente**: Permite la inserción manual de tareas con fechas y descripciones específicas.
-4. **Mostrar las Tareas**: Muestra todas las tareas almacenadas.
-5. **Resetear las Tareas**: Elimina todas las tareas almacenadas.
-6. **Salir**: Sale de la aplicación.
-
-Selecciona una opción usando su número correspondiente e ingresa la información requerida según las indicaciones.
 
 ## Contribuciones
 
 Las contribuciones a este proyecto son bienvenidas. Por favor, asegúrate de seguir las mejores prácticas de programación y manten la coherencia con el estilo de código existente.
+
