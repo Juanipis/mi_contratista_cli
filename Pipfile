@@ -9,6 +9,8 @@ pandas = "*"
 openpyxl = "*"
 rich = "*"
 prompt-toolkit = "*"
+pyqt5 = "*"
+arrow = "*"
 
 [dev-packages]
 
