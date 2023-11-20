@@ -8,7 +8,13 @@ class ReportGenerator:
         self.db = Database()
         self.df = None
 
-    def generate_report(self, start_date, end_date, filename="report.xlsx"):
+    def generate_report(
+        self,
+        start_date: datetime,
+        end_date: datetime,
+        salary: float,
+        filename="report.xlsx",
+    ):
         start_datetime = datetime.combine(start_date, time())
         end_datetime = datetime.combine(end_date, time())
 
@@ -37,5 +43,12 @@ class ReportGenerator:
             [["Total", "", "", "", total_hours]], columns=self.df.columns
         )
         self.df = pd.concat([self.df, total_row], ignore_index=True)
+
+        # Calcular y añadir la fila de pago total
+        total_payment = salary * total_hours
+        payment_row = pd.DataFrame(
+            [["Pago Total", "", "", "", total_payment]], columns=self.df.columns
+        )
+        self.df = pd.concat([self.df, payment_row], ignore_index=True)
 
         self.df.to_excel(filename, index=False)

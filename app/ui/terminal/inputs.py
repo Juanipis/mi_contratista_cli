@@ -31,3 +31,21 @@ def show_options(console: Console):
     ]
     for i, option in enumerate(options, start=1):
         console.print(f"[bold cyan]{i}.[/bold cyan] {option}")
+
+
+def check_integer(console: Console, task_id: int) -> int:
+    try:
+        task_id = int(task_id)
+        return task_id
+    except ValueError:
+        console.print("[bold red]Error: El ID debe ser un número.[/bold red]")
+        return -1
+
+
+def check_float(console: Console, number: float) -> float:
+    try:
+        number = float(number)
+        return number
+    except ValueError:
+        console.print("[bold red]Error: El número debe ser un número.[/bold red]")
+        return -1

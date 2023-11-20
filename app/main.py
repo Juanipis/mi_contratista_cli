@@ -3,7 +3,7 @@ from app.ui.terminal.outputs import show_one_task, show_options, timer, show_tas
 from app.usecase.task.task_manager import TaskManager
 from app.usecase.report.report_generator import ReportGenerator
 from rich.console import Console
-from app.ui.terminal.inputs import get_date
+from app.ui.terminal.inputs import get_date, check_integer, check_float
 from prompt_toolkit import prompt
 from prompt_toolkit.shortcuts import confirm
 import arrow
@@ -93,15 +93,6 @@ def delete_task_by_id(manager: TaskManager, console: Console):
             console.print(f"[bold red]Error: {e}[/bold red]")
 
 
-def check_integer(console: Console, task_id: int) -> int:
-    try:
-        task_id = int(task_id)
-        return task_id
-    except ValueError:
-        console.print("[bold red]Error: El ID debe ser un número.[/bold red]")
-        return -1
-
-
 def show_tasks(manager: TaskManager, console: Console):
     tasks = manager.get_tasks()
     if len(tasks) == 0:
@@ -120,6 +111,7 @@ def reset_tasks(manager: TaskManager, console: Console):
 
 
 def generate_report(report_gen: ReportGenerator, console: Console):
+    # Pedir fecha de inicio y fin
     start_date = get_date(
         console, "Ingrese la fecha de inicio del reporte (YYYY-MM-DD): ", "%Y-%m-%d"
     )
@@ -127,8 +119,17 @@ def generate_report(report_gen: ReportGenerator, console: Console):
         console, "Ingrese la fecha de fin del reporte (YYYY-MM-DD): ", "%Y-%m-%d"
     )
 
+    # Pedir salario por hora
+    salary = prompt("Ingrese su salario por hora: ")
+    salary = check_float(console, salary)
+    if salary == -1:
+        console.print(
+            "[bold red]Error: El salario debe ser un número valido.[/bold red]"
+        )
+        return
+
     try:
-        report_gen.generate_report(start_date, end_date)
+        report_gen.generate_report(start_date, end_date, salary)
         console.print("[bold green]Reporte generado.[/bold green]")
     except ValueError:
         console.print(
