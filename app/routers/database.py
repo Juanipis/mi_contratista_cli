@@ -1,85 +1,117 @@
-import sqlite3
+from pydantic_settings import BaseSettings
+import psycopg2
+from psycopg2 import sql
 from typing import Tuple
 from app.models.task import Task
 
 
-class Database:
-    def __init__(self, db_path="tasks.db"):
-        self.db_path = db_path
-        self.conn = None
-        self.connect()
+class Settings(BaseSettings):
+    db_host: str
+    db_port: str
+    db_user: str
+    db_password: str
+    db_name: str
 
-    def connect(self):
+
+class Database:
+    def __init__(self):
+        settings = Settings()
+        self.conn = None
+        self.connect(settings)
+        self.create_table()
+
+    def connect(self, settings: Settings):
         try:
-            self.conn = sqlite3.connect(self.db_path)
-        except sqlite3.Error as e:
-            raise sqlite3.Error(f"Error al conectar con la base de datos: {e}")
+            self.conn = psycopg2.connect(
+                host=settings.db_host,
+                port=settings.db_port,
+                user=settings.db_user,
+                password=settings.db_password,
+                dbname=settings.db_name,
+            )
+        except psycopg2.Error as e:
+            raise psycopg2.Error(f"Error al conectar con la base de datos: {e}")
 
     def create_table(self):
         try:
-            query = """
+            query = sql.SQL(
+                """
             CREATE TABLE IF NOT EXISTS tasks (
-                id INTEGER PRIMARY KEY,
+                id SERIAL PRIMARY KEY,
                 start_time TEXT NOT NULL,
                 end_time TEXT NOT NULL,
                 description TEXT NOT NULL
             )
             """
-            self.conn.execute(query)
+            )
+            cur = self.conn.cursor()
+            cur.execute(query)
             self.conn.commit()
-        except sqlite3.Error as e:
-            raise sqlite3.Error(f"Error al crear la tabla: {e}")
+            cur.close()
+        except psycopg2.Error as e:
+            raise psycopg2.Error(f"Error al crear la tabla: {e}")
 
     def add_task(self, task: Task):
         try:
-            query = (
-                "INSERT INTO tasks (start_time, end_time, description) VALUES (?, ?, ?)"
+            query = sql.SQL(
+                "INSERT INTO tasks (start_time, end_time, description) VALUES (%s, %s, %s)"
             )
-            self.conn.execute(query, (task.start_time, task.end_time, task.description))
+            cur = self.conn.cursor()
+            cur.execute(query, (task.start_time, task.end_time, task.description))
             self.conn.commit()
-        except sqlite3.Error as e:
-            raise sqlite3.Error(f"Error al agregar tarea: {e}")
+            cur.close()
+        except psycopg2.Error as e:
+            raise psycopg2.Error(f"Error al agregar tarea: {e}")
 
     def get_tasks(self) -> list[Task]:
         try:
-            query = "SELECT * FROM tasks"
+            query = sql.SQL("SELECT * FROM tasks")
             cur = self.conn.cursor()
             cur.execute(query)
             rows = cur.fetchall()
+            cur.close()
             return [
                 Task(id=row[0], start_time=row[1], end_time=row[2], description=row[3])
                 for row in rows
             ]
-        except sqlite3.Error as e:
-            raise sqlite3.Error(f"Error al obtener tareas: {e}")
+        except psycopg2.Error as e:
+            raise psycopg2.Error(f"Error al obtener tareas: {e}")
 
     def reset_tasks(self):
         try:
-            query = "DELETE FROM tasks"
-            self.conn.execute(query)
+            query = sql.SQL("DELETE FROM tasks")
+            cur = self.conn.cursor()
+            cur.execute(query)
             self.conn.commit()
-        except sqlite3.Error as e:
-            raise sqlite3.Error(f"Error al resetear tareas: {e}")
+            cur.close()
+        except psycopg2.Error as e:
+            raise psycopg2.Error(f"Error al resetear tareas: {e}")
 
     def get_task_by_id(self, id: int) -> Tuple[Task, bool]:
         try:
-            query = "SELECT * FROM tasks WHERE id = ?"
+            query = sql.SQL("SELECT * FROM tasks WHERE id = %s")
             cur = self.conn.cursor()
             cur.execute(query, (id,))
             row = cur.fetchone()
+            cur.close()
             if row:
                 return Task(
                     id=row[0], start_time=row[1], end_time=row[2], description=row[3]
                 ), True
             else:
                 return Task(), False
-        except sqlite3.Error as e:
-            raise sqlite3.Error(f"Error al obtener tarea: {e}")
+        except psycopg2.Error as e:
+            raise psycopg2.Error(f"Error al obtener tarea: {e}")
 
     def delete_task_by_id(self, id: int):
         try:
-            query = "DELETE FROM tasks WHERE id = ?"
-            self.conn.execute(query, (id,))
+            query = sql.SQL("DELETE FROM tasks WHERE id = %s")
+            cur = self.conn.cursor()
+            cur.execute(query, (id,))
             self.conn.commit()
-        except sqlite3.Error as e:
-            raise sqlite3.Error(f"Error al eliminar tarea: {e}")
+            cur.close()
+        except psycopg2.Error as e:
+            raise psycopg2.Error(f"Error al eliminar tarea: {e}")
+
+    def close(self):
+        self.conn.close()

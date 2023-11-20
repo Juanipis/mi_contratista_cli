@@ -11,6 +11,8 @@ rich = "*"
 prompt-toolkit = "*"
 pyqt5 = "*"
 arrow = "*"
+psycopg2-binary = "*"
+pydantic-settings = "*"
 
 [dev-packages]
 

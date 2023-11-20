@@ -13,37 +13,42 @@ def main():
     manager = TaskManager()
     report_gen = ReportGenerator()
     console = Console()
+    try:
+        while True:
+            show_options(console)
 
-    while True:
-        show_options(console)
+            option = prompt("Seleccione una opción: ")
 
-        option = prompt("Seleccione una opción: ")
+            if option == "1":
+                start_new_task(manager, console)
 
-        if option == "1":
-            start_new_task(manager, console)
+            elif option == "2":
+                generate_report(report_gen, console)
 
-        elif option == "2":
-            generate_report(report_gen, console)
+            elif option == "3":
+                insert_task_manually(manager, console)
 
-        elif option == "3":
-            insert_task_manually(manager, console)
+            elif option == "4":
+                show_tasks(manager, console)
 
-        elif option == "4":
-            show_tasks(manager, console)
+            elif option == "5":
+                delete_task_by_id(manager, console)
 
-        elif option == "5":
-            delete_task_by_id(manager, console)
+            elif option == "6":
+                reset_tasks(manager, console)
 
-        elif option == "6":
-            reset_tasks(manager, console)
-
-        elif option == "7":
-            console.print("[bold yellow]Saliendo...[/bold yellow]")
-            break
-        else:
-            console.print(
-                "[bold red]Opción inválida. Por favor, seleccione una opción válida.[/bold red]"
-            )
+            elif option == "7":
+                console.print("[bold yellow]Saliendo...[/bold yellow]")
+                manager.close()
+                break
+            else:
+                console.print(
+                    "[bold red]Opción inválida. Por favor, seleccione una opción válida.[/bold red]"
+                )
+    except Exception as e:
+        console.print(f"[bold red]Error: {e}[/bold red]")
+        console.print("[bold yellow]Saliendo...[/bold yellow]")
+        manager.close()
 
 
 def insert_task_manually(manager: TaskManager, console: Console):

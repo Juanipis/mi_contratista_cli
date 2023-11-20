@@ -64,3 +64,6 @@ class TaskManager:
 
     def get_task_by_id(self, id: int) -> Tuple[Task, bool]:
         return self.db.get_task_by_id(id)
+
+    def close(self):
+        self.db.close()
